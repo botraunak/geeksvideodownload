@@ -14,7 +14,7 @@ except:
 
 def downloadSegment(path, segment, pad):
     host = "https://s3.ap-south-1.amazonaws.com/videoin.gfg.org/courses/" + path
-    req = requests.get(url, headers=headers)
+    req = requests.get(host, headers=headers)
     req.raise_for_status()
     with open(folder_name + "/" + str(segment).zfill(pad) + ".ts", 'wb') as fd:
         for chunk in req.iter_content(chunk_size=50000):
