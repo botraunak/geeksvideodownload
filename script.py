@@ -28,7 +28,7 @@ def downloadPlaylist(url):
             fd.write(chunk)
 
 
-url = "https://s3.ap-south-1.amazonaws.com/videoin.gfg.org/courses/1710040b3089af8871fec7b5f545d8c6gfg-AnalysisOfAlgorithm-hlsx1080p.m3u8"
+url = "https://s3.ap-south-1.amazonaws.com/videoin.gfg.org/courses/cd1e62abbaa4f1323dc162f22ce3add6gfg-AnalysisOfRecursion%202-hlsx1080p.m3u8"
 downloadPlaylist(url)
 
 # Read playlist and download video
@@ -40,7 +40,7 @@ segment = 1
 pad = 5
 
 while line:
-    if(line.startswith("1710040b3089af8871fec7b5f545d8c6gfg-AnalysisOfAlgorithm-hlsx1080p/")):
+    if(line.startswith("cd1e62abbaa4f1323dc162f22ce3add6gfg-AnalysisOfRecursion%202-hlsx1080p")):
         print "Downloading Segment " + line + "..."
         downloadSegment(line.replace("\n", ""), segment, pad)
         fd.write("file " + str(segment).zfill(pad) + ".ts\n")
