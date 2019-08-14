@@ -1,8 +1,11 @@
 import requests
 import os
+import subprocess
 
 # Folder name where you want to download video
 folder_name = "Analysis-of-Algorithms"
+url = "https://s3.ap-south-1.amazonaws.com/videoin.gfg.org/courses/7d8358e7e9f29b15140f094721e55e55gfg-arrayscorrected-hlsx1080p.m3u8"
+startsWith = "7d8358e7e9f29b15140f094721e55e55gfg-arrayscorrected-hlsx1080p"
 
 # Headers to Download Video Url
 headers = {'Origin' : 'https://practice.geeksforgeeks.org/', 'Referer' : 'https://practice.geeksforgeeks.org/tracks/PC-W1-I/?batchId=140', 'User-Agent' : 'Samsung'}
@@ -28,7 +31,7 @@ def downloadPlaylist(url):
             fd.write(chunk)
 
 
-url = "https://s3.ap-south-1.amazonaws.com/videoin.gfg.org/courses/cd1e62abbaa4f1323dc162f22ce3add6gfg-AnalysisOfRecursion%202-hlsx1080p.m3u8"
+# Download the playlist            
 downloadPlaylist(url)
 
 # Read playlist and download video
@@ -40,7 +43,7 @@ segment = 1
 pad = 5
 
 while line:
-    if(line.startswith("cd1e62abbaa4f1323dc162f22ce3add6gfg-AnalysisOfRecursion%202-hlsx1080p")):
+    if(line.startswith(startsWith)):
         print "Downloading Segment " + line + "..."
         downloadSegment(line.replace("\n", ""), segment, pad)
         fd.write("file " + str(segment).zfill(pad) + ".ts\n")
@@ -48,3 +51,8 @@ while line:
     # use realine() to read next line
     line = f.readline()
 f.close()
+
+# Merge Video
+os.chdir(folder_name)
+subprocess.call(['ffmpeg', '-f', 'concat', '-i', 'all.txt', '-c', 'copy', 'all.ts'])
+subprocess.call(['ffmpeg', '-i', 'all.ts', '-acodec', 'copy', '-vcodec', 'copy', 'all.mp4'])
