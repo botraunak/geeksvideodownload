@@ -4,52 +4,51 @@ import subprocess
 import time
 
 # Folder name where you want to download video
-folder_name = raw_input("Enter the folder name: ")
-url = raw_input("Enter the video m3u8 file: ")
+folder_name = input("Enter the folder name: ")
+url = input("Enter the video m3u8 file: ")
 
 # Headers to Download Video Url
-headers = {'Origin' : 'https://practice.geeksforgeeks.org/', 'Referer' : 'https://practice.geeksforgeeks.org/tracks/PC-W1-I/?batchId=140', 'User-Agent' : 'Samsung'}
+headers = {
+    'Origin': 'https://www.geeksforgeeks.org', 
+    'Referer': 'https://www.geeksforgeeks.org', 
+    'User-Agent': 'Samsung'
+}
 
-try:
-    os.mkdir(folder_name)
-except:
-    print "Couldn't create folder"
+# Create folder safely
+os.makedirs(folder_name, exist_ok=True)
 
 def downloadSegment(path, segment, pad):
-    host = "https://s3.ap-south-1.amazonaws.com/videoin.gfg.org/courses/" + path
+    host = "https://cdnvideos.geeksforgeeks.org/hls/" + path
     req = requests.get(host, headers=headers)
     req.raise_for_status()
-    with open(folder_name + "/" + str(segment).zfill(pad) + ".ts", 'wb') as fd:
+    with open(os.path.join(folder_name, f"{str(segment).zfill(pad)}.ts"), 'wb') as fd:
         for chunk in req.iter_content(chunk_size=50000):
             fd.write(chunk)
 
 def downloadPlaylist(url):            
-    req = requests.get(url, headers = headers)
+    req = requests.get(url, headers=headers)
     req.raise_for_status()
-    with open(folder_name + "/playlist.m3u8", 'wb') as fd:
+    with open(os.path.join(folder_name, "playlist.m3u8"), 'wb') as fd:
         for chunk in req.iter_content(chunk_size=50000):
             fd.write(chunk)
-
 
 # Download the playlist            
 downloadPlaylist(url)
 
 # Read playlist and download video
-f = open(folder_name + '/playlist.m3u8')
-line = f.readline()
-fd = open(folder_name + "/all.txt", "wb")
+with open(os.path.join(folder_name, 'playlist.m3u8'), 'r') as f:
+    lines = f.readlines()
 
-segment = 1
-pad = 5
-while line:
-    if(not line.startswith("#")):
-        print "Downloading Segment " + line + "..."
-        downloadSegment(line.replace("\n", ""), segment, pad)
-        fd.write("file " + str(segment).zfill(pad) + ".ts\n")
-        segment += 1
-    # use realine() to read next line
-    line = f.readline()
-f.close()
+with open(os.path.join(folder_name, "all.txt"), "w") as fd:
+    segment = 1
+    pad = 5
+    for line in lines:
+        line = line.strip()
+        if not line.startswith("#"):
+            print(f"Downloading Segment {line}...")
+            downloadSegment(line, segment, pad)
+            fd.write(f"file {str(segment).zfill(pad)}.ts\n")
+            segment += 1
 
 # Merge Video
 time.sleep(5.0)
